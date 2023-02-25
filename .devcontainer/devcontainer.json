@@ -1,8 +1,8 @@
 {
   "name": "dev:fun-bits",
-  "build": {
-    "dockerfile": "Dockerfile"
-  },
-  "remoteUser": "node"
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "devcontaienr",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}"
+  // "remoteUser": "node"
   // "workspaceMount": ""
 }
