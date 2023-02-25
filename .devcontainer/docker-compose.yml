@@ -1,0 +1,15 @@
+version: '3.8'
+services:
+  devcontainer:
+    container_name: dev-fun-bits
+    user: node
+    build:
+      dockerfile: Dockerfile
+      context: .
+    command: sleep infinity
+    volumes:
+      - ../../:/workspaces:cached
+    environment:
+      PUID: 1000
+      GUID: 1000
+      TZ: America/Toronto

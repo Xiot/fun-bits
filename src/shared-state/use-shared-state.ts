@@ -1,5 +1,5 @@
 // @flow
-import { useContext, useCallback } from 'react';
+import { useContext, useCallback, useState } from 'react';
 import { useForceUpdate } from '../hooks/use-force-update';
 import { useEventHandler } from '../hooks/use-events';
 import { SharedStateContext } from './shared-state-context';
@@ -14,7 +14,7 @@ import type {
 
 export const useSharedState = <T>(key: StateKey<T>): SharedStateResult<T> => {
   const api = useContext(SharedStateContext);
-  const [update] = useForceUpdate();
+  const update = useForceUpdate();
 
   useEventHandler(
     api.event,
@@ -28,7 +28,7 @@ export const useSharedState = <T>(key: StateKey<T>): SharedStateResult<T> => {
 
   const setValue = useCallback(
     (arg: SharedStateSetterValue<T>, options: StateOptions = { notify: true }): void => {
-      // $FlowFixMe - Assume the type of function is correct.
+      // @ts-ignore-error - assume the type of function is correct
       const value = typeof arg === 'function' ? arg(api.get(key)) : arg;
       api.set(key, value, options);
     },
@@ -43,7 +43,7 @@ export const useSharedStateSendOnly = <T>(key: StateKey<T>): SharedStateSetterOn
 
   const setValue = useCallback(
     (arg: SharedStateSetterValue<T>, options: StateOptions = { notify: true }) => {
-      // $FlowFixMe - Assume the type of function is correct.
+      // @ts-ignore-error - assume the type of function is correct
       const value = typeof arg === 'function' ? arg(api.get(key)) : arg;
       api.set(key, value, options);
     },
