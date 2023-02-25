@@ -1,7 +1,7 @@
 FROM node:18-alpine
 
-RUN apt-get -y update
-RUN apt-get -y install git
+# RUN apt-get -y update
+# RUN apt-get -y install git
 
 RUN npm install -g pnpm
 
@@ -10,7 +10,7 @@ VOLUME /code/fun-bits
 
 WORKDIR /code/fun-bits
 
-COPY pnpm-lock.yaml .
-RUN pnpm fetch
+# COPY pnpm-lock.yaml .
+# RUN pnpm fetch
 
 RUN pnpm install
