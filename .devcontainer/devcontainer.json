@@ -2,7 +2,17 @@
   "name": "dev:fun-bits",
   "dockerComposeFile": "docker-compose.yml",
   "service": "devcontainer",
-  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}"
-  // "remoteUser": "node"
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "remoteUser": "node",
+  "containerUser": "node",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "donjayamanne.git-extension-pack",
+        "esbenp.prettier-vscode"
+      ]
+    }
+  }
   // "workspaceMount": ""
 }

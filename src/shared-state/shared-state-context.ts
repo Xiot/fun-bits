@@ -1,10 +1,10 @@
 // @flow
-import React, { createContext, useMemo } from 'react';
+import React, { createContext, type ReactNode, useMemo } from 'react';
 
-import { type EventSource, useEvent, useEventHandler } from '../../hooks/events';
+import { type EventSource, useEvent, useEventHandler } from '../hooks/use-events';
 import type { StateKey, StateOptions } from './types';
 import { useBatch } from '../../hooks/use-batch';
-import { chain } from '../../utils/enumerable';
+import { chain } from '../utils/enumerable';
 import { merge } from 'lodash';
 
 type EventArgs = {
@@ -20,16 +20,24 @@ export type SharedStateApi = {
   get<T>(key: StateKey<T>): T,
   set<T>(key: StateKey<T>, value: T, options?: StateOptions): void,
   clear<T>(key: StateKey<T>, options?: StateOptions): void,
-  all(): { [symbol]: mixed },
-  event: EventSource<EventArgs>,
+  all(): { [key: symbol]: unknown },
+  readonly event: EventSource<EventArgs>,
 };
 type InternalStateKey<T> = StateKey<T> & { __defaultValue?: T };
 
-const emptySharedState = {};
+const throwContextNotFound = () => { throw new Error('The SharedStateContext.Provider was not found in the component tree.') }
+const emptySharedState: SharedStateApi = {
+  get: throwContextNotFound,
+  set: throwContextNotFound,
+  clear: throwContextNotFound,
+  all: throwContextNotFound,
+  // @ts-expect-error - no context
+  event: null
+};
 export const SharedStateContext = createContext<SharedStateApi>(emptySharedState);
 
 type SharedStateProviderProps = {
-  children: React$Node,
+  children: ReactNode,
   initialValues?: MapState,
 
   mergeState?: SharedStateApi,
@@ -64,7 +72,7 @@ export function SharedStateProvider(props: SharedStateProviderProps) {
     // flowlint-next-line unclear-type:off
     const state = new Map<StateKey<any>, any>(props.initialValues);
 
-    const toObject: () => { [symbol]: mixed } = () =>
+    const toObject: () => { [symbol: symbol]: unknown } = () =>
       // $FlowFixMe - null prototype is fine
       Array.from(state.entries()).reduce((obj, [key, value]) => {
         // $FlowFixMe - Symbols are good
@@ -78,11 +86,10 @@ export function SharedStateProvider(props: SharedStateProviderProps) {
       },
       get<T>(key: StateKey<T>): T {
         if (state.has(key)) {
-          // $FlowFixMe - it is in the list
           return state.get(key);
         }
-        // $FlowFixMe - its on them
-        return (key: InternalStateKey<T>).__defaultValue;
+        // @ts-expect-error - value will be there
+        return (key as InternalStateKey<T>).__defaultValue;
       },
       set<T>(key: StateKey<T>, value: T, options?: StateOptions) {
         const { notify = true } = options ?? {};
@@ -118,5 +125,5 @@ export function SharedStateProvider(props: SharedStateProviderProps) {
     [props.mergeState]
   );
 
-  return <SharedStateContext.Provider value={api}>{props.children}</SharedStateContext.Provider>;
+  return <SharedStateContext.Provider value={ api }> { props.children } < /SharedStateContext.Provider>;
 }

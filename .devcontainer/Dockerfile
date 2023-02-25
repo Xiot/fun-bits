@@ -1,13 +1,13 @@
-FROM node:18-alpine
+FROM node:lts-buster
 
-# RUN apt-get -y update
-# RUN apt-get -y install git
-RUN apk add git
+RUN apt-get -y update
+RUN apt-get -y install git
+# RUN apk add git
 RUN npm install -g pnpm
 
 # RUN mkdir -p /code/fun-bits && chown -R node:node /code/fun-bits
 
-VOLUME /workspaces/fun-bits
+# VOLUME /workspaces/fun-bits
 WORKDIR /workspaces/fun-bits
 
 # COPY pnpm-lock.yaml .
