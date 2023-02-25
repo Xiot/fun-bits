@@ -1,7 +1,7 @@
 {
   "name": "dev:fun-bits",
   "dockerComposeFile": "docker-compose.yml",
-  "service": "devcontaienr",
+  "service": "devcontainer",
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}"
   // "remoteUser": "node"
   // "workspaceMount": ""
