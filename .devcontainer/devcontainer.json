@@ -1,0 +1,8 @@
+{
+  "name": "dev:fun-bits",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "remoteUser": "node"
+  // "workspaceMount": ""
+}
