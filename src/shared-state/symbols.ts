@@ -5,10 +5,9 @@ import isEqual from 'lodash/isEqual';
 import type { StateKey, EqualityCheck } from './types';
 
 const propertyCompare =
-  (key) =>
-  <T>(l: T, r: T) =>
-    // $FlowFixMe - the keys will be there
-    l?.[key] === r?.[key];
+  <T>(key: keyof T) =>
+    (l: T | null | undefined, r: T | null | undefined) =>
+      l?.[key] === r?.[key];
 
 /**
  * createStateKey
@@ -16,7 +15,7 @@ const propertyCompare =
  * @param defaultValue the default value
  * @returns the state key
  */
-declare function createStateKey<T>(name: string, defaultValue?: T): StateKey<T>;
+export function createStateKey<T>(name: string, defaultValue?: T): StateKey<T>;
 
 /**
  * createStateKey
@@ -25,7 +24,7 @@ declare function createStateKey<T>(name: string, defaultValue?: T): StateKey<T>;
  * @param equals the equality function
  * @returns the state key
  */
-declare function createStateKey<T: ?{}>(
+export function createStateKey<T extends unknown>(
   name: string,
   defaultValue: T,
   equals: EqualityCheck<T>
@@ -38,21 +37,20 @@ declare function createStateKey<T: ?{}>(
  * @param idProperty the name of property that will be used to check for equality
  * @returns the state key
  */
-declare function createStateKey<T: ?{}>(
+export function createStateKey<T extends unknown>(
   name: string,
   defaultValue: T,
-  idProperty: $Keys<$NonMaybeType<T>>
+  idProperty: keyof T
 ): StateKey<T>;
 
 export function createStateKey<T>(
   name: string,
   defaultValue?: T,
-  // $FlowFixMe - proper types are captured above
-  equals?: EqualityCheck<T> | $Keys<$NonMaybeType<T>> = isEqual
+  equals: EqualityCheck<T> | keyof T = isEqual
 ): StateKey<T> {
-  if (typeof equals === 'string') {
-    equals = propertyCompare(equals);
-  }
+  const objectEquals = typeof equals === 'function' ? equals : propertyCompare<T>(equals)
 
-  return { name, key: Symbol(name), __defaultValue: defaultValue, equals };
+  return { name, key: Symbol(name), __defaultValue: defaultValue, equals: objectEquals } as InternalStateKey<T>;
 }
+
+type InternalStateKey<T> = StateKey<T> & { __defaultValue?: T };

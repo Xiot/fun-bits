@@ -8,6 +8,6 @@ export type StateOptions = {
   notify?: boolean,
 };
 
-export type SharedStateSetterValue<T> = T | ((T) => T);
+export type SharedStateSetterValue<T> = T | ((value: T) => T);
 export type SharedStateSetterOnly<T> = (value: SharedStateSetterValue<T>) => void;
 export type SharedStateResult<T> = [T, (value: SharedStateSetterValue<T>, options?: StateOptions) => void];
