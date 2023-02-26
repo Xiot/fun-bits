@@ -1,0 +1,11 @@
+.devcontainer
+node_modules
+src
+.eslintrc.js
+.prettierrc
+jest.config.js
+pnpm-lock.yaml
+tsconfig.build.json
+tsconfig.json
+.npmignore
+.gitignore

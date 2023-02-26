@@ -1,5 +1,5 @@
 // @flow
-import { useContext, useCallback, useState } from 'react';
+import { useContext, useCallback } from 'react';
 import { useForceUpdate } from '../hooks/use-force-update';
 import { useEventHandler } from '../hooks/use-events';
 import { SharedStateContext } from './shared-state-context';

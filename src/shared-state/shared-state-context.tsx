@@ -1,11 +1,10 @@
 // @flow
-import React, { createContext, type ReactNode, useMemo } from 'react';
+import { createContext, type ReactNode, useMemo } from 'react';
 
 import { type EventSource, useEvent, useEventHandler } from '../hooks/use-events';
 import type { StateKey, StateOptions } from './types';
 import { useBatch } from '../hooks/use-batch';
 import { chain } from '../utils/enumerable';
-import { merge } from 'lodash';
 
 type EventArgs = {
   // flowlint-next-line unclear-type:off
@@ -13,8 +12,8 @@ type EventArgs = {
   // flowlint-next-line unclear-type:off
   value: any,
 };
-// flowlint-next-line unclear-type:off
-type MapState = Map<StateKey<any>, any>;
+
+type MapState = Map<StateKey<unknown>, unknown>;
 
 export type SharedStateApi = {
   get<T>(key: StateKey<T>): T,

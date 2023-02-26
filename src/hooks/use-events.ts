@@ -1,9 +1,8 @@
 import { useEffect, useLayoutEffect, useMemo } from 'react';
 
-const useIsomorphicLayoutEffect = __NODE__ ? useEffect : useLayoutEffect;
+const useIsomorphicLayoutEffect = (typeof window !== 'undefined') ? useEffect : useLayoutEffect;
 
-// flowlint-next-line unclear-type:off
-type Handler<T> = (arg: T) => void | any;
+type Handler<T> = (arg: T) => void;
 
 interface Event<T> {
   subscribe(cb: Handler<T>): () => void;

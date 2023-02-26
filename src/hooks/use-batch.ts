@@ -6,7 +6,7 @@ export function useBatch<T>(cb: (items: T[]) => void) {
   ref.current = cb;
 
   const items = useRef<T[]>([])
-  const timer = useRef<number | null>(null);
+  const timer = useRef<NodeJS.Timeout | number | null>(null);
   const [signal, setSignal] = useState<object>(() => Object.create(null))
 
   useEffect(() => {
@@ -31,5 +31,4 @@ export function useBatch<T>(cb: (items: T[]) => void) {
   return {
     append
   }
-
 }
