@@ -12,6 +12,8 @@ import type {
   StateOptions,
 } from './types';
 
+// TODO: Use useSyncExternalStore - https://beta.reactjs.org/reference/react/useSyncExternalStore
+
 export const useSharedState = <T>(key: StateKey<T>): SharedStateResult<T> => {
   const api = useContext(SharedStateContext);
   const update = useForceUpdate();

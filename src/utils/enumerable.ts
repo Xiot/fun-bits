@@ -32,7 +32,7 @@ export interface IEnumerable<TValue> extends Iterable<TValue> {
 
   distinct(): IEnumerable<TValue>;
 
-  groupBy<TKey, TItem: TValue>(
+  groupBy<TKey, TItem extends TValue>(
     keySelector: (value: TValue) => TKey
   ): IEnumerable<Group<TKey, TValue>>;
 
@@ -45,8 +45,8 @@ export interface IEnumerable<TValue> extends Iterable<TValue> {
 
   sort(compareFn?: CompareFunction<TValue>): IEnumerable<TValue>;
 
-  find(predicate: (value: TValue) => boolean): ?TValue;
-  first(): ?TValue;
+  find(predicate: (value: TValue) => boolean): TValue | undefined;
+  first(): TValue | undefined;
 
   reduce<U>(reducer: (acc: U, value: TValue) => U, initialValue: U): U;
   toArray(): TValue[];
@@ -56,7 +56,7 @@ class EnumerableFast<TSource, TValue> implements IEnumerable<TValue> {
   source: Iterable<TSource>;
   ops: Operation[];
 
-  constructor(source: Iterable<TSource>, ops?: Operation[] = []) {
+  constructor(source: Iterable<TSource>, ops: Operation[] = []) {
     this.source = source;
     this.ops = ops;
   }
@@ -86,19 +86,19 @@ class EnumerableFast<TSource, TValue> implements IEnumerable<TValue> {
   }
 
   as<T>(): IEnumerable<T> {
-    return (this: any);
+    return (this as any);
   }
 
   sort(compareFn?: (left: TValue, right: TValue) => number): IEnumerable<TValue> {
     return sort(compareFn)(this);
   }
 
-  find(predicate: (value: TValue) => boolean): ?TValue {
+  find(predicate: (value: TValue) => boolean): TValue | undefined {
     return find(predicate)(this);
   }
 
-  first(): ?TValue {
-    return find((x) => !!x)(this);
+  first(): TValue | undefined {
+    return find<TValue>((x) => !!x)(this);
   }
 
   // Flow can't deal with different overloads having
@@ -115,8 +115,7 @@ class EnumerableFast<TSource, TValue> implements IEnumerable<TValue> {
   append<U>(op: (value: TValue) => U | U[] | symbol): IEnumerable<U> {
     return new EnumerableFast<TSource, U>(this.source, [
       ...this.ops,
-      // $FlowFixMe - Types match
-      (op: Operation),
+      (op as Operation),
     ]);
   }
 
@@ -126,7 +125,7 @@ class EnumerableFast<TSource, TValue> implements IEnumerable<TValue> {
 
   *createIterator() {
     for (const item of this.source) {
-      let value = item;
+      let value: symbol | TSource | TSource[] = item;
       for (const op of this.ops) {
         value = op(value);
         if (shouldSkip(value)) {
@@ -144,10 +143,8 @@ class EnumerableFast<TSource, TValue> implements IEnumerable<TValue> {
     }
   }
 
-  // Computed property keys not supported.
-  // https://stackoverflow.com/questions/48491307/iterable-class-in-flow
-  // $FlowFixMe
   [Symbol.iterator](): Iterator<TValue> {
+    // @ts-expect-error
     return this.createIterator();
   }
 
@@ -169,18 +166,14 @@ interface ComposeOutput<TSource, TValue> {
   (source: Iterable<TSource>): IEnumerable<TValue>;
 }
 
-// eslint-disable-next-line no-redeclare
-declare function compose<T1, T2>(o1: TypedOperation<T1, T2>): ComposeOutput<T1, T2>;
-
-// eslint-disable-next-line no-redeclare
-declare function compose<T1, T2, T3>(
+export function compose<T1, T2>(o1: TypedOperation<T1, T2>): ComposeOutput<T1, T2>;
+export function compose<T1, T2, T3>(
   o1: TypedOperation<T1, T2>,
   o2: TypedOperation<T2, T3>
 ): ComposeOutput<T1, T3>;
 
-// eslint-disable-next-line no-redeclare
 export function compose(...ops: any[]) {
-  return (source) => new EnumerableFast(source, ops);
+  return (source: Iterable<unknown>) => new EnumerableFast(source, ops);
 }
 
 export function filter<TSource>(
@@ -231,7 +224,7 @@ export function reduce<TSource, TValue>(
 
 export function find<TValue>(
   predicate: (value: TValue) => boolean
-): (source: Iterable<TValue>) => ?TValue {
+): (source: Iterable<TValue>) => TValue | undefined {
   return (source) => {
     for (const value of source) {
       if (predicate(value)) {
@@ -259,7 +252,7 @@ export function groupBy<TValue, TKey, TItem>(
   return (source) => {
     const lookup = new Map<TKey, Group<TKey, TItem>>();
 
-    let getValue: (value: TValue) => TItem = valueSelector || (valueSelector = (x) => (x: any));
+    let getValue: (value: TValue) => TItem = valueSelector || (valueSelector = (x) => (x as any));
 
     const get = (key: TKey): Group<TKey, TItem> => {
       const container = lookup.get(key);

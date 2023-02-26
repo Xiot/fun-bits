@@ -1,6 +1,3 @@
-// @flow
-/* eslint-disable no-redeclare */
-
 import isEqual from 'lodash/isEqual';
 import type { StateKey, EqualityCheck } from './types';
 

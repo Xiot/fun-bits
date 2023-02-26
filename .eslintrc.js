@@ -18,4 +18,10 @@ module.exports = {
     ecmaVersion: 'latest',
     project: ['tsconfig.json'],
   },
+  plugins: [
+    '@typescript-eslint',
+    'promise',
+    'react',
+    'react-hooks',
+  ]
 }

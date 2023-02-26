@@ -62,7 +62,7 @@ export function SharedStateProvider(props: SharedStateProviderProps) {
         (e) => e.key,
         (e) => e.value
       )
-      .map((g) => ({ key: g.key, value: g.values.reduce((acc, e) => merge(acc, e), {}) }))
+      .map((g) => ({ key: g.key, value: g.values.at(-1)}))
       .toArray();
 
     batchedEvents.forEach((event) => changedEvent.fire(event));
