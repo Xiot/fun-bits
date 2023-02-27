@@ -1,4 +1,3 @@
-// @flow
 export * from './shared-state-context';
 
 export { createStateKey } from './symbols';

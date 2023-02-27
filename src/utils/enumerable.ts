@@ -1,6 +1,3 @@
-// @flow
-// flowlint unclear-type:off
-
 const OperationRemove = Symbol('@@remove');
 const OperationBreak = Symbol('@@break');
 const OperationKey = Symbol('operation');
@@ -32,13 +29,11 @@ export interface IEnumerable<TValue> extends Iterable<TValue> {
 
   distinct(): IEnumerable<TValue>;
 
-  groupBy<TKey, TItem extends TValue>(
-    keySelector: (value: TValue) => TKey
-  ): IEnumerable<Group<TKey, TValue>>;
+  groupBy<TKey, TItem extends TValue>(keySelector: (value: TValue) => TKey): IEnumerable<Group<TKey, TValue>>;
 
   groupBy<TKey, TItem>(
     keySelector: (value: TValue) => TKey,
-    valueSelector: (value: TValue) => TItem
+    valueSelector: (value: TValue) => TItem,
   ): IEnumerable<Group<TKey, TItem>>;
 
   as<T>(): IEnumerable<T>;
@@ -86,7 +81,7 @@ class EnumerableFast<TSource, TValue> implements IEnumerable<TValue> {
   }
 
   as<T>(): IEnumerable<T> {
-    return (this as any);
+    return this as any;
   }
 
   sort(compareFn?: (left: TValue, right: TValue) => number): IEnumerable<TValue> {
@@ -105,18 +100,12 @@ class EnumerableFast<TSource, TValue> implements IEnumerable<TValue> {
   // different sets of generic arguments.
   // This class is only exposed through the interface,
   // so we should still have proper typings.
-  groupBy<TKey, TItem>(
-    keySelector: (value: TValue) => TKey,
-    valueSelector?: (value: TValue) => TItem
-  ): any {
+  groupBy<TKey, TItem>(keySelector: (value: TValue) => TKey, valueSelector?: (value: TValue) => TItem): any {
     return groupBy(keySelector, valueSelector)(this);
   }
 
   append<U>(op: (value: TValue) => U | U[] | symbol): IEnumerable<U> {
-    return new EnumerableFast<TSource, U>(this.source, [
-      ...this.ops,
-      (op as Operation),
-    ]);
+    return new EnumerableFast<TSource, U>(this.source, [...this.ops, op as Operation]);
   }
 
   toArray(): TValue[] {
@@ -167,24 +156,17 @@ interface ComposeOutput<TSource, TValue> {
 }
 
 export function compose<T1, T2>(o1: TypedOperation<T1, T2>): ComposeOutput<T1, T2>;
-export function compose<T1, T2, T3>(
-  o1: TypedOperation<T1, T2>,
-  o2: TypedOperation<T2, T3>
-): ComposeOutput<T1, T3>;
+export function compose<T1, T2, T3>(o1: TypedOperation<T1, T2>, o2: TypedOperation<T2, T3>): ComposeOutput<T1, T3>;
 
 export function compose(...ops: any[]) {
   return (source: Iterable<unknown>) => new EnumerableFast(source, ops);
 }
 
-export function filter<TSource>(
-  predicate: (value: TSource) => boolean
-): TypedOperation<TSource, TSource> {
+export function filter<TSource>(predicate: (value: TSource) => boolean): TypedOperation<TSource, TSource> {
   return (value: TSource) => (predicate(value) ? value : OperationRemove);
 }
 
-export function map<TValue, TMapped>(
-  mapper: (value: TValue) => TMapped
-): TypedOperation<TValue, TMapped> {
+export function map<TValue, TMapped>(mapper: (value: TValue) => TMapped): TypedOperation<TValue, TMapped> {
   return mapper;
 }
 
@@ -211,7 +193,7 @@ export function distinct<TValue>(): TypedOperation<TValue, TValue> {
 
 export function reduce<TSource, TValue>(
   reducer: (acc: TValue, value: TSource) => TValue,
-  initialValue: TValue
+  initialValue: TValue,
 ): (source: Iterable<TSource>) => TValue {
   return (source: Iterable<TSource>) => {
     let result = initialValue;
@@ -222,9 +204,7 @@ export function reduce<TSource, TValue>(
   };
 }
 
-export function find<TValue>(
-  predicate: (value: TValue) => boolean
-): (source: Iterable<TValue>) => TValue | undefined {
+export function find<TValue>(predicate: (value: TValue) => boolean): (source: Iterable<TValue>) => TValue | undefined {
   return (source) => {
     for (const value of source) {
       if (predicate(value)) {
@@ -235,9 +215,7 @@ export function find<TValue>(
   };
 }
 
-export function sort<TValue>(
-  compareFn?: CompareFunction<TValue>
-): (source: Iterable<TValue>) => IEnumerable<TValue> {
+export function sort<TValue>(compareFn?: CompareFunction<TValue>): (source: Iterable<TValue>) => IEnumerable<TValue> {
   return (source) => {
     const arr = Array.from(source);
     arr.sort(compareFn);
@@ -247,12 +225,12 @@ export function sort<TValue>(
 
 export function groupBy<TValue, TKey, TItem>(
   keySelector: (value: TValue) => TKey,
-  valueSelector?: (value: TValue) => TItem
+  valueSelector?: (value: TValue) => TItem,
 ): (source: Iterable<TValue>) => IEnumerable<Group<TKey, TItem>> {
   return (source) => {
     const lookup = new Map<TKey, Group<TKey, TItem>>();
 
-    let getValue: (value: TValue) => TItem = valueSelector || (valueSelector = (x) => (x as any));
+    let getValue: (value: TValue) => TItem = valueSelector || (valueSelector = (x) => x as any);
 
     const get = (key: TKey): Group<TKey, TItem> => {
       const container = lookup.get(key);

@@ -1,4 +1,3 @@
-// @flow
 import {
   createPipeline,
   pipe,
@@ -22,7 +21,7 @@ const ProcessedUrlParamsKey = createStateKey('url-params-processed', {});
 
 const parseUri =
   <TApi extends BasePipelineApi>(node: RouteNode): PipelineReducer<TApi, Record<string, string>, string> =>
-  (uri, previousUri, api) => {
+  (uri) => {
     const parsed = new UriParse(uri);
     const match = matchPath(parsed.pathname, node.path);
     const params = {
@@ -36,7 +35,7 @@ const serializeUri =
   <TApi extends BasePipelineApi, TValue extends Record<string, string>>(
     node: RouteNode,
   ): PipelineReducer<TApi, string, TValue> =>
-  (value, prevValue, api) => {
+  (value) => {
     const template = trimEnd(node.path, '/');
     const grouped = groupParams(value, template);
     return (

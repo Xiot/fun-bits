@@ -1,5 +1,3 @@
-// @flow
-
 import type { ParamSerializers, Serializer } from '../serializers';
 import type { PipelineReducer, PipelineSideEffect, BasePipelineApi } from '../pipeline';
 

@@ -1,4 +1,3 @@
-// @flow
 import { createContext, type ReactNode, useMemo } from 'react';
 
 import { type EventSource, useEvent, useEventHandler } from '../hooks/use-events';
