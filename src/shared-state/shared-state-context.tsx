@@ -20,7 +20,7 @@ export type SharedStateApi = {
   all(): { [key: symbol]: unknown },
   readonly event: EventSource<EventArgs>,
 };
-type InternalStateKey<T> = StateKey<T> & { __defaultValue?: T };
+
 
 const throwContextNotFound = () => { throw new Error('The SharedStateContext.Provider was not found in the component tree.') }
 const emptySharedState: SharedStateApi = {

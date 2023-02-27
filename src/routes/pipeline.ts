@@ -1,15 +1,15 @@
 // @flow
 import {
   createPipeline,
-  compose,
+  pipe,
   executeSideEffects,
   storeValue,
   applyDecoders,
   applyEncoders,
   type BasePipelineApi,
   type PipelineReducer,
-} from '../services/pipeline/index';
-import { createStateKey } from '../contexts/shared-state';
+} from '../pipeline';
+import { createStateKey } from '../shared-state';
 import type { RouteNode, RoutePipelineApi } from './types';
 import UriParse from 'url-parse';
 import { matchPath, generatePath } from 'react-router-dom';
@@ -21,19 +21,21 @@ const RawUrlParamsKey = createStateKey('url-params-raw', {});
 const ProcessedUrlParamsKey = createStateKey('url-params-processed', {});
 
 const parseUri =
-  <T: BasePipelineApi>(node: RouteNode): PipelineReducer<T> =>
+  <TApi extends BasePipelineApi>(node: RouteNode): PipelineReducer<TApi, Record<string, string>, string> =>
   (uri, previousUri, api) => {
     const parsed = new UriParse(uri);
     const match = matchPath(parsed.pathname, node.path);
     const params = {
-      ...match.params,
+      ...(match?.params ?? {}),
       ...qs.parse(parsed.query, { ignoreQueryPrefix: true }),
-    };
+    } as Record<string, string>;
     return params;
   };
 
 const serializeUri =
-  <T: BasePipelineApi>(node: RouteNode): PipelineReducer<T> =>
+  <TApi extends BasePipelineApi, TValue extends Record<string, string>>(
+    node: RouteNode,
+  ): PipelineReducer<TApi, string, TValue> =>
   (value, prevValue, api) => {
     const template = trimEnd(node.path, '/');
     const grouped = groupParams(value, template);
@@ -43,51 +45,44 @@ const serializeUri =
     );
   };
 
-export const createInputPipeline = <T>(
-  api: RoutePipelineApi,
-  node: RouteNode
-): ((uri: string) => T) => {
-  return createPipeline<RoutePipelineApi>(
+export const createInputPipeline = <T>(api: RoutePipelineApi, node: RouteNode<T>): ((uri: string) => T) => {
+  return createPipeline<RoutePipelineApi, string, T>(
     api,
-    compose(
+    pipe(
       parseUri(node),
-      compose(
+      pipe(
         // Save the original url params
         executeSideEffects(storeValue(RawUrlParamsKey)),
         // Apply Decoders
         applyDecoders(node.serializers),
         // Apply Customizable Reducers
-        compose(...node.onEnter.reducers),
+        pipe(...node.onEnter.reducers),
         // Save Processed
         executeSideEffects(storeValue(ProcessedUrlParamsKey)),
         // Side Effects
-        executeSideEffects(...node.onEnter.effects)
-      )
-    )
+        executeSideEffects(...node.onEnter.effects),
+      ),
+    ),
   );
 };
 
-const mergeWithCurrent = (value, prevValue, { state }) => ({
-  ...state.get(ProcessedUrlParamsKey),
-  ...value,
-});
-
-export const createOutputPipeline = (
+export const createOutputPipeline = <TValue extends Record<string, unknown>>(
   api: RoutePipelineApi,
-  node: RouteNode
-): ((value: mixed) => string) => {
-  return createPipeline(
+  node: RouteNode,
+): ((value: TValue) => string) => {
+  return createPipeline<RoutePipelineApi, TValue, string>(
     api,
-    compose(
+    pipe(
       // Merge with Existing
-      mergeWithCurrent,
+      (value, _, { state }) => ({ ...state.get(ProcessedUrlParamsKey), ...value }),
+
       // ApplyEncoders
       applyEncoders(node.serializers),
       // User Defined reducers
-      compose(...node.onExit.reducers),
-      compose(executeSideEffects(...node.onExit.effects)),
+      pipe(...node.onExit.reducers),
+      executeSideEffects(...node.onExit.effects),
 
-      serializeUri(node)
-    )
+      serializeUri(node),
+    ),
   );
 };
