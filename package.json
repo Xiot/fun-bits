@@ -5,6 +5,7 @@
   "types": "./dist/index.d.ts",
   "dependencies": {
     "lodash": "^4.17.21",
+    "luxon": "^3.2.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
@@ -15,6 +16,7 @@
     "@testing-library/react": "^14.0.0",
     "@types/jest": "^29.4.0",
     "@types/lodash": "^4.14.191",
+    "@types/luxon": "^3.2.0",
     "@types/node": "^18.14.1",
     "@types/react": "^18.0.28",
     "@typescript-eslint/eslint-plugin": "^5.53.0",

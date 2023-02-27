@@ -1,7 +1,6 @@
-// @flow
 
 export type EqualityCheck<T> = (left: T, right: T) => boolean;
-// flowlint-next-line unclear-type:off
+
 export type StateKey<T = any> = { name: string, key: symbol, equals: EqualityCheck<T> };
 
 export type StateOptions = {

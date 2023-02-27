@@ -7,9 +7,7 @@ import { useBatch } from '../hooks/use-batch';
 import { chain } from '../utils/enumerable';
 
 type EventArgs = {
-  // flowlint-next-line unclear-type:off
   key: StateKey<any>,
-  // flowlint-next-line unclear-type:off
   value: any,
 };
 
