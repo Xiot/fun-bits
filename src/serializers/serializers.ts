@@ -27,4 +27,4 @@ export const SERIALIZERS = {
     (value) => value.toISO(),
     (text) => DateTime.fromISO(text),
   ),
-} satisfies Record<string, Serializer<any> | ((...args: any[]) => Serializer<any>)>;
+} satisfies Record<string, Serializer<unknown> | ((...args: unknown[]) => Serializer<unknown>)>;

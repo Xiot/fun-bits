@@ -23,7 +23,7 @@ export const useSharedState = <T>(key: StateKey<T>): SharedStateResult<T> => {
 
   const setValue = useCallback(
     (arg: SharedStateSetterValue<T>, options: StateOptions = { notify: true }): void => {
-      // @ts-ignore-error - assume the type of function is correct
+      // @ts-expect-error - assume the type of function is correct
       const value = typeof arg === 'function' ? arg(api.get(key)) : arg;
       api.set(key, value, options);
     },
@@ -38,7 +38,7 @@ export const useSharedStateSendOnly = <T>(key: StateKey<T>): SharedStateSetterOn
 
   const setValue = useCallback(
     (arg: SharedStateSetterValue<T>, options: StateOptions = { notify: true }) => {
-      // @ts-ignore-error - assume the type of function is correct
+      // @ts-expect-error - assume the type of function is correct
       const value = typeof arg === 'function' ? arg(api.get(key)) : arg;
       api.set(key, value, options);
     },

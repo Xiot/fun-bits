@@ -29,7 +29,7 @@ export interface IEnumerable<TValue> extends Iterable<TValue> {
 
   distinct(): IEnumerable<TValue>;
 
-  groupBy<TKey, TItem extends TValue>(keySelector: (value: TValue) => TKey): IEnumerable<Group<TKey, TValue>>;
+  groupBy<TKey, TItem extends TValue>(keySelector: (value: TValue) => TKey): IEnumerable<Group<TKey, TItem>>;
 
   groupBy<TKey, TItem>(
     keySelector: (value: TValue) => TKey,
@@ -133,19 +133,8 @@ class EnumerableFast<TSource, TValue> implements IEnumerable<TValue> {
   }
 
   [Symbol.iterator](): Iterator<TValue> {
-    // @ts-expect-error
-    return this.createIterator();
+    return this.createIterator() as Iterator<TValue>;
   }
-
-  // This block makes Flow deal with custom iterators correctly.
-  // It does however make `uber-web upgrade` break.
-  // Comment this out when running `uber-web upgrade`
-  /*::
-  @@iterator(): Iterator<TValue> {
-    // $FlowFixMe
-    return this._source[Symbol.iterator]()
-  }
-  */
 }
 
 interface TypedOperation<TInput, TOutput> {
@@ -230,7 +219,7 @@ export function groupBy<TValue, TKey, TItem>(
   return (source) => {
     const lookup = new Map<TKey, Group<TKey, TItem>>();
 
-    let getValue: (value: TValue) => TItem = valueSelector || (valueSelector = (x) => x as any);
+    const getValue: (value: TValue) => TItem = valueSelector || (valueSelector = (x) => x as any);
 
     const get = (key: TKey): Group<TKey, TItem> => {
       const container = lookup.get(key);

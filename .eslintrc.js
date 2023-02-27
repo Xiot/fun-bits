@@ -10,18 +10,37 @@ module.exports = {
   extends: [
     'plugin:@typescript-eslint/recommended',
     'plugin:react/recommended',
+    'plugin:react/jsx-runtime',
     'prettier',
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     sourceType: 'module',
     ecmaVersion: 'latest',
+    ecmaFeatures: {
+      jsx: true,
+    },
     project: ['tsconfig.json'],
+  },
+  settings: {
+    react: {
+      version: 'detect',
+    },
   },
   plugins: [
     '@typescript-eslint',
-    'promise',
     'react',
     'react-hooks',
-  ]
+  ],
+  overrides: [
+    {
+      extends: ['eslint:recommended', 'prettier'],
+      files: ['*.js'],
+      parser: 'espree',
+      parserOptions: {
+        emcaVersion: 'latest',
+        sourceType: 'commonjs',
+      },    
+    },
+  ],
 }

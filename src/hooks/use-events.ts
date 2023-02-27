@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo } from 'react';
 
-const useIsomorphicLayoutEffect = (typeof window !== 'undefined') ? useEffect : useLayoutEffect;
+const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useEffect : useLayoutEffect;
 
 type Handler<T> = (arg: T) => void;
 
@@ -13,10 +13,9 @@ interface EventSource<T> extends Event<T> {
   fire(arg: T): void;
 }
 
-const EmptyArray: any[] = [];
+const EmptyArray: unknown[] = [];
 
-
-type Dependencies = any[];
+type Dependencies = unknown[];
 
 /**
   Subscribes to the provided event and handles unsubscribing when the component
@@ -28,11 +27,7 @@ type Dependencies = any[];
               If the dependencies change, then the event will be unsubscribed
               and resubscribed with the new closure.
  */
-function useEventHandler<T>(
-  event: Event<T> | null | undefined,
-  cb: Handler<T>,
-  deps: Dependencies = EmptyArray
-): void {
+function useEventHandler<T>(event: Event<T> | null | undefined, cb: Handler<T>, deps: Dependencies = EmptyArray): void {
   // useLayoutEffect so that the subscription happens sooner.
   useIsomorphicLayoutEffect(() => {
     if (!event) {
