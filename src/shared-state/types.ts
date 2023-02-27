@@ -1,6 +1,6 @@
 export type EqualityCheck<T> = (left: T, right: T) => boolean;
 
-export type StateKey<T = any> = { name: string; key: symbol; equals: EqualityCheck<T> };
+export type StateKey<T = unknown> = { name: string; key: symbol; equals: EqualityCheck<T> };
 
 export type StateOptions = {
   notify?: boolean;

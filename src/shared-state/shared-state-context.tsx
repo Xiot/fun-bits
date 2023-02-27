@@ -5,9 +5,9 @@ import type { StateKey, StateOptions } from './types';
 import { useBatch } from '../hooks/use-batch';
 import { chain } from '../utils/enumerable';
 
-type EventArgs = {
-  key: StateKey<any>,
-  value: any,
+type EventArgs<T = unknown> = {
+  key: StateKey<T>,
+  value: T,
 };
 
 type MapState = Map<StateKey<unknown>, unknown>;
@@ -43,15 +43,10 @@ type SharedStateProviderProps = {
   // another shared state, higher up in the tree.
 };
 
-type PendingFireEvent = {
-  key: StateKey<any>,
-  // flowlint-next-line unclear-type:off
-  value: any,
-};
 
 export function SharedStateProvider(props: SharedStateProviderProps) {
   const changedEvent = useEvent<EventArgs>();
-  const batch = useBatch<PendingFireEvent>((events) => {
+  const batch = useBatch<EventArgs<any>>((events) => {
     // Batch the events by merging items with the same key
     const batchedEvents = chain(events)
       .groupBy(

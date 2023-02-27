@@ -4,10 +4,6 @@ import type { PipelineReducer, PipelineSideEffect, BasePipelineApi } from '../pi
 export type RouteArgs = { [name: string]: unknown };
 export type { Serializer };
 
-export type SerializerMap = {
-  [name: string]: Serializer<any>;
-};
-
 /**
  * New Routing API.
  */
@@ -110,14 +106,14 @@ export type RoutePipelineTrigger<TApi extends BasePipelineApi> = {
   reducers: PipelineReducer<TApi>[];
   effects: PipelineSideEffect<TApi>[];
 };
-export type ComponentRoute = {
+export type ComponentRoute<TParams> = {
   type: 'view';
   name: string;
   exact?: boolean;
   path: string;
   component: React.ComponentType<unknown>;
   children?: RouteDefinition[];
-  params: SerializerMap;
+  params: ParamSerializers<TParams>;
 
   onEnter?: Partial<RoutePipelineTrigger<RoutePipelineApi>>;
   onExit?: Partial<RoutePipelineTrigger<RoutePipelineApi>>;
@@ -138,8 +134,8 @@ export type DefaultRoute = {
   component: React.ComponentType<unknown>;
 };
 
-export type RouteDefinition = ComponentRoute | RedirectRoute | DefaultRoute;
-export type RouteNode<TParams = any> = {
+export type RouteDefinition = ComponentRoute<unknown> | RedirectRoute | DefaultRoute;
+export type RouteNode<TParams = unknown> = {
   path: string;
   serializers: ParamSerializers<TParams>;
 

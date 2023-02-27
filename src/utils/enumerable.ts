@@ -81,7 +81,7 @@ class EnumerableFast<TSource, TValue> implements IEnumerable<TValue> {
   }
 
   as<T>(): IEnumerable<T> {
-    return this as any;
+    return this as unknown as IEnumerable<T>;
   }
 
   sort(compareFn?: (left: TValue, right: TValue) => number): IEnumerable<TValue> {
@@ -96,11 +96,10 @@ class EnumerableFast<TSource, TValue> implements IEnumerable<TValue> {
     return find<TValue>((x) => !!x)(this);
   }
 
-  // Flow can't deal with different overloads having
-  // different sets of generic arguments.
-  // This class is only exposed through the interface,
-  // so we should still have proper typings.
-  groupBy<TKey, TItem>(keySelector: (value: TValue) => TKey, valueSelector?: (value: TValue) => TItem): any {
+  groupBy<TKey, TItem>(
+    keySelector: (value: TValue) => TKey,
+    valueSelector?: (value: TValue) => TItem,
+  ): IEnumerable<Group<TKey, TItem>> {
     return groupBy(keySelector, valueSelector)(this);
   }
 
@@ -147,7 +146,7 @@ interface ComposeOutput<TSource, TValue> {
 export function compose<T1, T2>(o1: TypedOperation<T1, T2>): ComposeOutput<T1, T2>;
 export function compose<T1, T2, T3>(o1: TypedOperation<T1, T2>, o2: TypedOperation<T2, T3>): ComposeOutput<T1, T3>;
 
-export function compose(...ops: any[]) {
+export function compose(...ops: Operation[]) {
   return (source: Iterable<unknown>) => new EnumerableFast(source, ops);
 }
 
@@ -219,7 +218,7 @@ export function groupBy<TValue, TKey, TItem>(
   return (source) => {
     const lookup = new Map<TKey, Group<TKey, TItem>>();
 
-    const getValue: (value: TValue) => TItem = valueSelector || (valueSelector = (x) => x as any);
+    const getValue: (value: TValue) => TItem = valueSelector || (valueSelector = (x) => x as unknown as TItem);
 
     const get = (key: TKey): Group<TKey, TItem> => {
       const container = lookup.get(key);
@@ -241,13 +240,17 @@ export function groupBy<TValue, TKey, TItem>(
   };
 }
 
-function shouldSkip(value: any): boolean {
+function shouldSkip(value: unknown): boolean {
   return value === OperationBreak || value === OperationRemove;
 }
 
-function shouldBreak(value: any): boolean {
+function shouldBreak(value: unknown | { [OperationKey]: typeof OperationBreak }): boolean {
   if (!value) {
     return false;
   }
-  return value === OperationBreak || value[OperationKey] === OperationBreak;
+  if (value === OperationBreak) return true;
+  if (typeof value === 'object' && OperationKey in value && value[OperationKey] === OperationBreak) {
+    return true;
+  }
+  return false;
 }
