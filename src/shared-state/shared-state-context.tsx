@@ -103,7 +103,7 @@ export function SharedStateProvider(props: SharedStateProviderProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [changedEvent]);
 
-  // this  allows for additional scoped data, where we merge in parent values as they change.
+  // this allows for additional scoped data, where we merge in parent values as they change.
   // This is useful for respecting user settings such as time or number settings, per chart
   useEventHandler(
     props.mergeState?.event,
@@ -113,5 +113,5 @@ export function SharedStateProvider(props: SharedStateProviderProps) {
     [props.mergeState]
   );
   
-  return <SharedStateContext.Provider value={ api }> { props.children } </SharedStateContext.Provider>;
+  return <SharedStateContext.Provider value={ api }>{ props.children }</SharedStateContext.Provider>;
 }

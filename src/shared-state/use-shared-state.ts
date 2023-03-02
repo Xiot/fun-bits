@@ -1,25 +1,12 @@
-import { useContext, useCallback } from 'react';
-import { useForceUpdate } from '../hooks/use-force-update';
-import { useEventHandler } from '../hooks/use-events';
+import { useContext, useCallback, useSyncExternalStore } from 'react';
 import { SharedStateContext } from './shared-state-context';
 
 import type { StateKey, SharedStateResult, SharedStateSetterValue, SharedStateSetterOnly, StateOptions } from './types';
 
-// TODO: Use useSyncExternalStore - https://beta.reactjs.org/reference/react/useSyncExternalStore
-
 export const useSharedState = <T>(key: StateKey<T>): SharedStateResult<T> => {
   const api = useContext(SharedStateContext);
-  const update = useForceUpdate();
 
-  useEventHandler(
-    api.event,
-    (action) => {
-      if (action.key === key) {
-        update();
-      }
-    },
-    [key],
-  );
+  const value = useSyncExternalStore(api.event.subscribe, () => api.get(key));
 
   const setValue = useCallback(
     (arg: SharedStateSetterValue<T>, options: StateOptions = { notify: true }): void => {
@@ -30,7 +17,7 @@ export const useSharedState = <T>(key: StateKey<T>): SharedStateResult<T> => {
     [api, key],
   );
 
-  return [api.get(key), setValue];
+  return [value, setValue];
 };
 
 export const useSharedStateSendOnly = <T>(key: StateKey<T>): SharedStateSetterOnly<T> => {
