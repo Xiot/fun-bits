@@ -140,7 +140,7 @@ export type RouteNode<TParams = unknown> = {
   serializers: ParamSerializers<TParams>;
 
   route: RouteDefinition;
-  parents: RouteNode[];
+  parent: RouteNode | null;
   children: RouteNode[];
 
   onEnter: RoutePipelineTrigger<RoutePipelineApi>;
